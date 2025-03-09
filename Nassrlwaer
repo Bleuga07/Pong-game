@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pong Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <script src="script.js"></script>
+</body>
+</html>
+.index.html
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+canvas.width = 800;
+canvas.height = 400;
+
+const paddleWidth = 10, paddleHeight = 100;
+let leftPaddle = { x: 10, y: 150, speed: 5 };
+let rightPaddle = { x: canvas.width - 20, y: 150, speed: 5 };
+let ball = { x: canvas.width / 2, y: canvas.height / 2, dx: 5, dy: 5, size: 10 };
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "blue";
+    ctx.fillRect(leftPaddle.x, leftPaddle.y, paddleWidth, paddleHeight);
+    ctx.fillStyle = "red";
+    ctx.fillRect(rightPaddle.x, rightPaddle.y, paddleWidth, paddleHeight);
+    ctx.fillStyle = "white";
+    ctx.beginPath();
+    ctx.arc(ball.x, ball.y, ball.size, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+document.addEventListener("keydown", (e) => {
+    if (e.key === "w" && leftPaddle.y > 0) leftPaddle.y -= leftPaddle.speed;
+    if (e.key === "s" && leftPaddle.y < canvas.height - paddleHeight) leftPaddle.y += leftPaddle.speed;
+
+    if (e.key === "ArrowUp" && rightPaddle.y > 0) rightPaddle.y -= rightPaddle.speed;
+    if (e.key === "ArrowDown" && rightPaddle.y < canvas.height - paddleHeight) rightPaddle.y += rightPaddle.speed;
+});
+
+function collisionDetection() {
+    if (ball.x - ball.size <= leftPaddle.x + paddleWidth && ball.y >= leftPaddle.y && ball.y <= leftPaddle.y + paddleHeight) {
+        ball.dx *= -1;
+    }
+    if (ball.x + ball.size >= rightPaddle.x && ball.y >= rightPaddle.y && ball.y <= rightPaddle.y + paddleHeight) {
+        ball.dx *= -1;
+    }
+}
+
+function update() {
+    ball.x += ball.dx;
+    ball.y += ball.dy;
+
+    if (ball.y <= 0 || ball.y >= canvas.height) {
+        ball.dy *= -1;
+    }
+
+    collisionDetection();
+
+    if (ball.x <= 0 || ball.x >= canvas.width) {
+        ball.x = canvas.width / 2;
+        ball.y = canvas.height / 2;
+        ball.dx *= -1;
+    }
+}
+
+function gameLoop() {
+    update();
+    draw();
+    requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
+.style.css
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: black;
+}
+
+canvas {
+    background: white;
+    border: 2px solid #fff;
+}
+.script.js
